@@ -3,7 +3,7 @@
 @section('content')
 
     @if(Auth::check())
-        {{Auth::user()->name}}
+        ユーザーID【{{Auth::user()->name}}】でログインしました。
     @else
         <div class="center jumbotron">
             <div class="text-center">
