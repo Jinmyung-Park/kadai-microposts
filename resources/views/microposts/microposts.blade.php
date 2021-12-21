@@ -28,3 +28,4 @@
     {{-- ページネーションのリンク --}}
     {{ $microposts->links() }}
 @endif
+
