@@ -29,7 +29,7 @@ class User extends Authenticatable
     
     public function loadRelationshipCounts()
     {
-        $this->loadCount(['microposts','followings','followers']);
+        $this->loadCount(['microposts','followings','followers','favorites']);
     }
    
     /**
@@ -98,5 +98,43 @@ class User extends Authenticatable
         // それらのユーザが所有する投稿に絞り込む
         return Micropost::whereIn('user_id', $userIds);
     }
+    
+    public function favorites()
+    {
+        return $this->belongsToMany(Micropost::class, 'favorites', 'user_id', 'micropost_id')->withTimestamps();
+    }
+    
+    public function is_favorited($micropostId)
+    {
+        return $this->favorites()->where('micropost_id', $micropostId)->exists();
+    }
+    
+    public function addFavorite($micropostId)
+    {
+        // すでにフォローしているかの確認
+        $favoriteExists = $this->is_favorited($micropostId);
+        
+        if ($favoriteExists) {
+        } else {
+            $this->favorites()->attach($micropostId);
+        }
+    }
+    
+    public function deleteFavorite($micropostId)
+    {
+        $favoriteExists = $this->is_favorited($micropostId);
+        if ($favoriteExists) {
+           $this->favorites()->detach($micropostId);
+        } 
+        else {
+        }
+    }
+   
+    public function favorite_microposts()
+    {
+        // このユーザがフォロー中のユーザのidを取得して配列にする  pluck() は引数として与えられたテーブルのカラムの値だけを抜き出す命令です。== users tableのidを抜き出す
+        $micropostIds = $this->favorites()->pluck('microposts.id')->toArray();
+        return Micropost::whereIn('id', $micropostIds);
+    }
+    
 }
-     
