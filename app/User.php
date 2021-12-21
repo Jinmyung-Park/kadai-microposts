@@ -89,5 +89,14 @@ class User extends Authenticatable
         return $this->followings()->where('follow_id', $userId)->exists();
     }
     
+    public function feed_microposts()
+    {
+        // このユーザがフォロー中のユーザのidを取得して配列にする  pluck() は引数として与えられたテーブルのカラムの値だけを抜き出す命令です。== users tableのidを抜き出す
+        $userIds = $this->followings()->pluck('users.id')->toArray();
+        // このユーザのidもその配列に追加
+        $userIds[] = $this->id;
+        // それらのユーザが所有する投稿に絞り込む
+        return Micropost::whereIn('user_id', $userIds);
+    }
 }
      
